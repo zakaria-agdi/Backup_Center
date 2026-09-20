@@ -1,0 +1,8 @@
+{
+  "SftpUser": "backupreader",
+  "SftpPort": 22,
+  "KnownHostsFile": "C:\\BackupCenterSSH\\known_hosts",
+  "PrivateKeyFile": "C:\\BackupCenterSSH\\id_ed25519",
+  "RclonePath": "C:\\Tools\\rclone\\rclone.exe",
+  "UploadDestination": "backupdrive:BackupCenter"
+}

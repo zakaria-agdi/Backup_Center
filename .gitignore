@@ -1,0 +1,14 @@
+/Config/config.json
+/Config/secrets.json
+/Config/proxmox.json
+/Config/proxmox-transfer.json
+/Config/backup-queue.json
+/Config/proxmox-backup-test.json
+/Config/retention.json
+/Config/*.lock
+/Config/*.tmp
+/Work/
+/Temp/
+/Logs/*
+!/Logs/.gitkeep
+*.clixml

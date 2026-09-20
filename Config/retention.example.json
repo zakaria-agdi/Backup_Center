@@ -1,0 +1,25 @@
+{
+  "SchemaVersion": 1,
+  "Sources": [
+    {
+      "SourceId": "11111111-1111-1111-1111-111111111111",
+      "JobIds": ["22222222-2222-2222-2222-222222222222"],
+      "KeepLast": 5,
+      "Locations": [
+        { "Kind": "Local", "Path": "E:\\BackupArchive" },
+        { "Kind": "Rclone", "Path": "primary:BackupCenter" },
+        { "Kind": "Rclone", "Path": "offsite:BackupCenter" }
+      ]
+    },
+    {
+      "SourceId": "33333333-3333-3333-3333-333333333333",
+      "JobIds": ["44444444-4444-4444-4444-444444444444"],
+      "KeepLast": 2,
+      "Locations": [
+        { "Kind": "Local", "Path": "E:\\BackupArchive" },
+        { "Kind": "Rclone", "Path": "primary:BackupCenter" },
+        { "Kind": "Rclone", "Path": "offsite:BackupCenter" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Backup Center: serveur local",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-File",
+				"${workspaceFolder}/Scripts/Start-BackupCenter.ps1"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

@@ -1,0 +1,6 @@
+{
+  "ApiUri": "https://192.168.1.45:8006/",
+  "Node": "pve",
+  "VMId": 9001,
+  "ExpectedName": "srv-app-01"
+}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr" data-theme="aqua">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Backup Center | Proxmox</title>
+  <link rel="stylesheet" href="assets/tailwind.css">
+  <script src="assets/lucide.min.js" defer></script>
+  <script src="dashboard.js" defer></script>
+</head>
+<body class="min-h-screen antialiased">
+  <a class="skip-link" href="#dashboard">Aller au tableau de bord</a>
+  <div class="dashboard-shell mx-auto w-full max-w-[1440px] px-4 pb-3 pt-5 sm:px-6">
+    <header class="app-header grid items-center gap-x-6 gap-y-3">
+      <a href="#dashboard" class="brand flex items-center gap-3" aria-label="Backup Center">
+        <span class="brand-mark" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+        <span><span class="brand-name block font-bold">Backup <span>Center</span></span><span class="brand-caption block">Proxmox VE &middot; Console locale</span></span>
+      </a>
+      <div class="author text-right"><p>Environnement de test</p><p class="copyright">Sauvegarde snapshot</p></div>
+      <nav class="navigation flex items-center gap-1" aria-label="Navigation">
+        <a class="nav-item is-active" href="#dashboard" aria-current="page"><i data-lucide="chart-no-axes-combined"></i><span>Tableau de bord</span></a>
+        <a class="nav-item" href="#access-title"><i data-lucide="key-round"></i><span>Proxmox</span></a>
+        <a class="nav-item" href="#run-queue"><i data-lucide="list-ordered"></i><span>File du moteur</span></a>
+        <button id="theme-toggle" class="nav-item" type="button" title="Changer la couleur d'accent" aria-label="Changer la couleur d'accent"><i data-lucide="palette"></i><span id="theme-name">Aqua</span></button>
+      </nav>
+    </header>
+    <main id="dashboard" class="mt-5" tabindex="-1">
+      <h1 class="sr-only">Tableau de bord Backup Center</h1>
+      <section class="stats-grid grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Dernier relev&eacute; Proxmox">
+        <article class="stat-card stat-healthy"><div class="stat-content flex items-start gap-3"><span class="stat-icon" aria-hidden="true"><i data-lucide="server"></i></span><div class="min-w-0"><p id="vm-state" class="stat-value stat-date">Inconnu</p><h2 class="stat-label">&Eacute;tat de la VM</h2><p class="stat-description">Dernier test Proxmox</p></div></div></article>
+        <article class="stat-card stat-problems"><div class="stat-content flex items-start gap-3"><span class="stat-icon" aria-hidden="true"><i data-lucide="cpu"></i></span><div class="min-w-0"><p id="vm-cpu" class="stat-value">--</p><h2 class="stat-label">CPU</h2><p class="stat-description">Utilisation au dernier relev&eacute;</p></div></div></article>
+        <article class="stat-card stat-sources"><div class="stat-content flex items-start gap-3"><span class="stat-icon" aria-hidden="true"><i data-lucide="memory-stick"></i></span><div class="min-w-0"><p id="vm-memory" class="stat-value stat-date">--</p><h2 class="stat-label">M&eacute;moire</h2><p id="vm-memory-total" class="stat-description">Capacit&eacute; inconnue</p></div></div></article>
+        <article class="stat-card stat-activity"><div class="stat-content flex items-start gap-3"><span class="stat-icon" aria-hidden="true"><i data-lucide="clock-3"></i></span><div class="min-w-0"><p id="vm-uptime" class="stat-value stat-date">--</p><h2 class="stat-label">Temps de marche</h2><p class="stat-description">Depuis le dernier d&eacute;marrage</p></div></div></article>
+      </section>
+      <div class="update-bar flex flex-wrap items-center justify-between gap-2 py-3">
+        <div class="flex items-center gap-2"><button id="refresh" class="nav-item" type="button" title="Actualiser les donn&eacute;es locales" aria-label="Actualiser les donn&eacute;es locales"><i data-lucide="refresh-cw"></i></button><span>API locale : <time id="dashboard-updated-at">--</time></span></div>
+        <span id="connection-status" class="demo-status" role="status">Connexion au serveur local...</span>
+      </div>
+      <div class="overview-grid grid gap-4 lg:grid-cols-[0.9fr_2.1fr]">
+        <section class="access-panel" aria-labelledby="access-title">
+          <div class="flex items-center gap-3"><span class="access-icon" aria-hidden="true"><i data-lucide="key-round"></i></span><div><h2 id="access-title" class="section-title">Token API Proxmox</h2><p id="credential-state" class="supporting-text">Chargement...</p></div></div>
+          <form id="login-form" aria-describedby="auth-status" autocomplete="off">
+            <fieldset id="credential-fields" disabled>
+              <legend class="sr-only">Identifiants Proxmox</legend>
+              <label for="token-id">Identifiant du token</label>
+              <div class="input-wrap"><i data-lucide="user-round" aria-hidden="true"></i><input id="token-id" name="tokenId" type="text" placeholder="backup@pve!monitor" maxlength="128" autocomplete="off" spellcheck="false" required></div>
+              <label for="token-secret">Secret du token</label>
+              <div class="input-wrap"><i data-lucide="lock-keyhole" aria-hidden="true"></i><input id="token-secret" name="tokenSecret" type="password" maxlength="512" autocomplete="new-password" required></div>
+              <button id="save-token" class="signin-button mt-4" type="submit"><span>Enregistrer</span><i data-lucide="save" aria-hidden="true"></i></button>
+            </fieldset>
+          </form>
+          <button id="test-proxmox" class="signin-button mt-3" type="button" disabled><span>Tester la connexion</span><i data-lucide="plug-zap" aria-hidden="true"></i></button>
+          <div class="auth-footer"><p id="auth-status" role="status" aria-live="polite">Aucun test effectu&eacute;.</p></div>
+        </section>
+        <section class="overview-panel relative overflow-hidden" aria-labelledby="overview-title">
+          <h2 id="overview-title" class="overview-title font-semibold">srv-app-01</h2>
+          <ul class="provider-list flex flex-wrap gap-2" aria-label="Cible"><li class="provider provider-proxmox">Proxmox VE</li><li id="target-id" class="provider provider-vmware">VM 9001</li><li id="probe-state" class="provider provider-shares">Non test&eacute;e</li></ul>
+          <div class="overview-body grid items-center gap-3">
+            <ul class="summary-list space-y-3">
+              <li><i data-lucide="network" aria-hidden="true"></i><span>API <span class="summary-separator">&middot;</span> <span id="target-api">--</span></span></li>
+              <li><i data-lucide="server" aria-hidden="true"></i><span>N&oelig;ud <span class="summary-separator">&middot;</span> <span id="target-node">--</span></span></li>
+              <li><i data-lucide="clock" aria-hidden="true"></i><span>Dernier test <span class="summary-separator">&middot;</span> <time id="probe-time">Jamais</time></span></li>
+              <li><i data-lucide="lock-keyhole" aria-hidden="true"></i><span>Stockage du token <span class="summary-separator">&middot;</span> DPAPI CurrentUser</span></li>
+              <li><i data-lucide="hard-drive" aria-hidden="true"></i><span>Stockage du dernier test <span class="summary-separator">&middot;</span> <span id="last-backup-storage">Aucun</span></span></li>
+              <li><i data-lucide="calendar-clock" aria-hidden="true"></i><span>Planification <span class="summary-separator">&middot;</span> Non configur&eacute;e</span></li>
+            </ul>
+            <div class="backup-art" role="img" aria-label="Serveur Proxmox">
+              <div class="art-grid"></div><div class="server-tower"><div class="server-top"></div><div class="server-unit"><span></span><b></b></div><div class="server-unit"><span></span><b></b></div><div class="server-unit"><span></span><b></b></div><div class="server-unit"><span></span><b></b></div></div>
+              <i class="art-cloud" data-lucide="cloud" aria-hidden="true"></i><div class="art-shield"><i data-lucide="shield" aria-hidden="true"></i></div><span class="art-caption">PROXMOX VE</span>
+            </div>
+          </div>
+        </section>
+      </div>
+      <section class="backup-section mt-4" aria-labelledby="backup-title">
+        <h2 id="backup-title" class="section-title">Test vzdump</h2>
+        <form id="backup-form">
+          <div class="backup-toolbar">
+            <div class="backup-storage-field"><label for="backup-storage">Stockage Proxmox</label><select id="backup-storage" required disabled><option value="">Choisir un stockage</option></select></div>
+            <button id="load-storages" class="nav-item" type="button" title="Charger les stockages de sauvegarde" aria-label="Charger les stockages de sauvegarde" disabled><i data-lucide="refresh-cw" aria-hidden="true"></i></button>
+            <button id="start-backup" class="backup-button" type="submit" disabled><i data-lucide="archive-restore" aria-hidden="true"></i><span>Lancer vzdump</span></button>
+          </div>
+          <label class="backup-consent"><input id="backup-confirm" type="checkbox" required disabled><span>Je confirme une sauvegarde r&eacute;elle de <strong id="backup-target">srv-app-01 / VM 9001</strong> en mode snapshot, sans suppression des sauvegardes existantes.</span></label>
+        </form>
+        <p id="backup-status" class="supporting-text" role="status" aria-live="polite">Aucun test de sauvegarde lanc&eacute;.</p>
+        <p id="backup-task" class="supporting-text"></p>
+        <div class="backup-toolbar">
+          <button id="start-transfer" class="backup-button" type="button" disabled><i data-lucide="cloud-upload" aria-hidden="true"></i><span>Rapatrier, chiffrer et envoyer</span></button>
+          <p id="transfer-status" class="supporting-text" role="status" aria-live="polite">Configuration SSH / rclone absente.</p>
+        </div>
+        <p id="transfer-progress" class="supporting-text" role="status" aria-live="polite"></p>
+      </section>
+      <section id="run-queue" class="queue-section mt-4" aria-labelledby="queue-title">
+        <div class="queue-heading"><h2 id="queue-title" class="section-title">File du moteur</h2><p id="queue-count">--</p></div>
+        <div class="queue-scroll" role="region" aria-label="Travaux du moteur" tabindex="0"><ol id="queue-items" class="queue-list flex items-stretch gap-2"><li class="supporting-text">Chargement...</li></ol></div>
+        <p id="queue-status" class="queue-note">Pipeline compl&egrave;te non lanc&eacute;e</p>
+      </section>
+      <section class="pipeline-section mt-4" aria-labelledby="pipeline-title">
+        <div class="flex flex-wrap items-baseline gap-x-2"><h2 id="pipeline-title" class="section-title">Pipeline</h2><p id="pipeline-job" class="supporting-text">Aucun travail s&eacute;lectionn&eacute;</p></div>
+        <ol id="pipeline-steps" class="pipeline-list grid" aria-label="&Eacute;tapes du travail">
+          <li class="pipeline-step" data-step="Export/Pull" data-status="idle"><span class="pipeline-icon tone-purple"><i data-lucide="server" aria-hidden="true"></i></span><div><h3>Export / Pull</h3><p>Non d&eacute;marr&eacute;</p></div></li>
+          <li class="pipeline-step" data-step="Compress &amp; Encrypt" data-status="idle"><span class="pipeline-icon tone-amber"><i data-lucide="lock-keyhole" aria-hidden="true"></i></span><div><h3>Compression + chiffrement</h3><p>Non d&eacute;marr&eacute;</p></div></li>
+          <li class="pipeline-step" data-step="Upload" data-status="idle"><span class="pipeline-icon"><i data-lucide="cloud-upload" aria-hidden="true"></i></span><div><h3>Upload</h3><p>Non d&eacute;marr&eacute;</p></div></li>
+          <li class="pipeline-step" data-step="Archive" data-status="idle"><span class="pipeline-icon tone-green"><i data-lucide="archive" aria-hidden="true"></i></span><div><h3>Archive</h3><p>Non d&eacute;marr&eacute;</p></div></li>
+          <li class="pipeline-step" data-step="Offsite" data-status="idle"><span class="pipeline-icon"><i data-lucide="globe-2" aria-hidden="true"></i></span><div><h3>Offsite</h3><p>Non d&eacute;marr&eacute;</p></div></li>
+          <li class="pipeline-step" data-step="VERIFY" data-status="idle"><span class="pipeline-icon tone-green"><i data-lucide="shield-check" aria-hidden="true"></i></span><div><h3>V&eacute;rification</h3><p>Non d&eacute;marr&eacute;</p></div></li>
+        </ol>
+      </section>
+    </main>
+    <footer class="page-footer py-4 text-center">Backup Center <span class="footer-dot">&middot;</span> PowerShell <span class="footer-dot">&middot;</span> Acc&egrave;s local</footer>
+  </div>
+</body>
+</html>
